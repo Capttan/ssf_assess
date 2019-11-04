@@ -24,30 +24,55 @@ export class BookListComponent implements OnInit {
     const state = window.history.state;
     if (!state['terms'])
       return this.router.navigate(['/']);
-      
+
 
     this.terms = state.terms;
     this.limit = parseInt(state.limit) || 10;
 
     console.log('state.terms: ', state.terms);
     console.log('state.limit: ', state.limit);
-    console.log('state.limit(type): ', typeof(state.limit));
+    console.log('state.limit(type): ', typeof (state.limit));
 
     const searchCriterial: SearchCriteria = {
       terms: this.terms,
       limit: 50 //this.limit
     }
 
-    //TODO: should not display all at the start
+    // TODO: should not display all at the start
+    // this.bookSvc.getBooks(searchCriterial)
+    //   .then(result => {
+    //     console.log('getBooks: ', result);
+    //     this.books = result;
+    //     this.grandTotal = this.books.total;
+    //   }).catch(error => {
+    //     const errorResponse = error as ErrorResponse;
+    //     alert(`Status: ${errorResponse.status}\nMessage: ${errorResponse.message}`)
+    //   })
+
+    // Very hacky way of doing this but insufficient time left
+
     this.bookSvc.getBooks(searchCriterial)
       .then(result => {
         console.log('getBooks: ', result);
         this.books = result;
         this.grandTotal = this.books.total;
+        let searchCriterial: SearchCriteria = {
+          terms: this.terms,
+          limit: this.limit
+        }
+        this.bookSvc.getBooks(searchCriterial)
+          .then(result => {
+            console.log('getBooks: ', result);
+            this.books = result;
+          }).catch(error => {
+            const errorResponse = error as ErrorResponse;
+            alert(`Status: ${errorResponse.status}\nMessage: ${errorResponse.message}`)
+          });
       }).catch(error => {
         const errorResponse = error as ErrorResponse;
         alert(`Status: ${errorResponse.status}\nMessage: ${errorResponse.message}`)
       })
+
   }
 
   next() {
@@ -95,7 +120,7 @@ export class BookListComponent implements OnInit {
 
     if (this.offset - this.limit >= 0) {
       this.offset -= this.limit;
-    }else{
+    } else {
       this.offset = 0;
     }
 
